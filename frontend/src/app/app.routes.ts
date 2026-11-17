@@ -10,6 +10,7 @@ import { LeaveHistoryComponent } from './features/leaves/leave-history/leave-his
 import { LeaveReviewComponent } from './features/leaves/leave-review/leave-review.component';
 import { LeaveTypeManagerComponent } from './features/leaves/leave-type-manager/leave-type-manager.component';
 import { RegisterAdminComponent } from './features/auth/register-admin/register-admin.component';
+import { RegisterComponent } from './features/auth/register/register.component';
 import { AttendanceTrackerComponent } from './features/attendance/attendance-tracker/attendance-tracker.component';
 import { AttendanceLogComponent } from './features/attendance/attendance-log/attendance-log.component';
 import { authGuard } from './core/guards/auth.guard';
@@ -17,6 +18,7 @@ import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   
   // Admin Only Routes

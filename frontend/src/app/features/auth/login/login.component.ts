@@ -1,14 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthResponse } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -65,12 +65,12 @@ export class LoginComponent implements OnInit {
     if (role === 'admin') {
       this.loginForm.patchValue({
         email: 'admin@company.com',
-        password: 'AdminPassword123!'
+        password: 'admin@123'
       });
     } else {
       this.loginForm.patchValue({
         email: 'employee@company.com',
-        password: 'EmployeePassword123!'
+        password: 'employee@123'
       });
     }
   }

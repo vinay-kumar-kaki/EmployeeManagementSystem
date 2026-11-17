@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { AuthResponse, CurrentUser, LoginRequest, RegisterAdminRequest } from '../models/auth.models';
+import { AuthResponse, CurrentUser, LoginRequest, RegisterAdminRequest, RegisterEmployeeRequest } from '../models/auth.models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -46,6 +46,28 @@ export class AuthService {
 
   registerAdmin(data: RegisterAdminRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register-admin`, data);
+  }
+
+  /** Public self-registration for Employee accounts; signs the new user in immediately. */
+  register(data: RegisterEmployeeRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
+      tap(response => {
+        if (response.success && response.token) {
+          localStorage.setItem(this.tokenKey, response.token);
+
+          const user: CurrentUser = {
+            userId: this.extractUserId(response.token),
+            email: response.email || '',
+            fullName: response.fullName || '',
+            role: response.role || 'Employee',
+            employeeId: response.employeeId
+          };
+
+          localStorage.setItem(this.userKey, JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+      })
+    );
   }
 
   /** Re-reads the signed-in user from the API so identity/role state is server-authoritative. */

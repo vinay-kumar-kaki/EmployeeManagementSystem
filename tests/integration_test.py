@@ -32,8 +32,8 @@ DB_PATH = Path(os.environ.get(
     ROOT / "backend" / "EmployeeManagementSystem.API" / "EmployeeManagement.db",
 ))
 ADMIN_EMAIL = os.environ.get("EMS_ADMIN_EMAIL", "admin@company.com")
-ADMIN_PASSWORD = os.environ.get("EMS_ADMIN_PASSWORD", "AdminPassword123!")
-EMPLOYEE_PASSWORD = "TestPassword123!"
+ADMIN_PASSWORD = os.environ.get("EMS_ADMIN_PASSWORD", "admin@123")
+EMPLOYEE_PASSWORD = "employee@123"
 
 RUN_ID = datetime.now().strftime("%Y%m%d%H%M%S")
 DEPT_NAME = f"Integration QA {RUN_ID}"

@@ -1,0 +1,75 @@
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="row justify-content-center w-100">
+    <div class="col-md-8 col-lg-6 col-xl-5">
+      <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-flex mb-3">
+            <i class="bi bi-person-plus-fill fs-2"></i>
+          </div>
+          <h3 class="fw-bold text-dark">Create Your Account</h3>
+          <p class="text-muted small mb-0">Register as an employee to access the portal</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger small" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-semibold text-secondary">First Name</label>
+              <input type="text" formControlName="firstName" class="form-control bg-light"
+                     placeholder="Jane" />
+              <div *ngIf="registerForm.get('firstName')?.touched && registerForm.get('firstName')?.invalid"
+                   class="text-danger small mt-1">First name is required.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-semibold text-secondary">Last Name</label>
+              <input type="text" formControlName="lastName" class="form-control bg-light"
+                     placeholder="Doe" />
+              <div *ngIf="registerForm.get('lastName')?.touched && registerForm.get('lastName')?.invalid"
+                   class="text-danger small mt-1">Last name is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-secondary">Email Address</label>
+            <input type="email" formControlName="email" class="form-control bg-light"
+                   placeholder="name@company.com" />
+            <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+                 class="text-danger small mt-1">Enter a valid email address.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-secondary">Password</label>
+            <input type="password" formControlName="password" class="form-control bg-light"
+                   placeholder="At least 8 characters" />
+            <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+                 class="text-danger small mt-1">
+              Use 8+ characters with lowercase, a digit and a special character.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-semibold text-secondary">Confirm Password</label>
+            <input type="password" formControlName="confirmPassword" class="form-control bg-light"
+                   placeholder="Repeat your password" />
+            <div *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid"
+                 class="text-danger small mt-1">Please confirm the password.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm"
+                  [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+          </button>
+        </form>
+
+        <div class="border-top pt-3 mt-4 text-center">
+          <span class="text-muted small">Already have an account? </span>
+          <a routerLink="/login" class="fw-semibold">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

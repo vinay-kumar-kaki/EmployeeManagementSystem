@@ -6,6 +6,7 @@ namespace EmployeeManagementSystem.API.Services.Interfaces
     {
         Task<AuthResponseDto> LoginAsync(LoginDto dto);
         Task<AuthResponseDto> RegisterAdminAsync(RegisterAdminDto dto);
+        Task<AuthResponseDto> RegisterEmployeeAsync(RegisterEmployeeDto dto);
         Task<CurrentUserDto?> GetCurrentUserAsync(string userId);
     }
 }

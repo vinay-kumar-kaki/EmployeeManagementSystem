@@ -21,6 +21,13 @@ export interface RegisterAdminRequest {
   password: string;
 }
 
+export interface RegisterEmployeeRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
 export interface CurrentUser {
   userId: string;
   email: string;

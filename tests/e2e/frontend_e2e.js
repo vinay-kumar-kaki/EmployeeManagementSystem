@@ -28,8 +28,8 @@ const WebSocket = require(wsPath);
 const FRONTEND_URL = (process.env.EMS_FRONTEND_URL || 'http://localhost:4200').replace(/\/$/, '');
 const API_URL = (process.env.EMS_API_URL || 'http://localhost:5120').replace(/\/$/, '');
 const ADMIN_EMAIL = process.env.EMS_ADMIN_EMAIL || 'admin@company.com';
-const ADMIN_PASSWORD = process.env.EMS_ADMIN_PASSWORD || 'AdminPassword123!';
-const EMPLOYEE_PASSWORD = 'TestPassword123!';
+const ADMIN_PASSWORD = process.env.EMS_ADMIN_PASSWORD || 'admin@123';
+const EMPLOYEE_PASSWORD = 'employee@123';
 const DEBUG_PORT = Number(process.env.EMS_DEBUG_PORT || 9333);
 
 const RUN_ID = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);

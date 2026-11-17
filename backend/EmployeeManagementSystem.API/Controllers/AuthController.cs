@@ -59,6 +59,27 @@ namespace EmployeeManagementSystem.API.Controllers
         }
 
         /// <summary>
+        /// Public self-registration for Employee accounts.
+        /// </summary>
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterEmployeeDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _authService.RegisterEmployeeAsync(dto);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Gets the profile information of the currently authenticated user from the JWT claims.
         /// </summary>
         [Authorize]

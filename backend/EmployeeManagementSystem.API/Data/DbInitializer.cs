@@ -32,7 +32,7 @@ namespace EmployeeManagementSystem.API.Data
 
                 // 2. Seed Default Admin Account
                 var adminEmail = configuration["AdminSeed:Email"] ?? "admin@company.com";
-                var adminPassword = configuration["AdminSeed:Password"] ?? "AdminPassword123!";
+                var adminPassword = configuration["AdminSeed:Password"] ?? "admin@123";
                 var adminFirstName = configuration["AdminSeed:FirstName"] ?? "System";
                 var adminLastName = configuration["AdminSeed:LastName"] ?? "Admin";
 
@@ -60,6 +60,10 @@ namespace EmployeeManagementSystem.API.Data
                         logger.LogError("Failed to seed Admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                     }
                 }
+                else
+                {
+                    await EnsureSeedPasswordAsync(userManager, existingAdmin, adminPassword, "Admin", logger);
+                }
 
                 // 3. Seed Default Departments if empty
                 if (!await context.Departments.AnyAsync())
@@ -78,8 +82,9 @@ namespace EmployeeManagementSystem.API.Data
 
                 // 3b. Seed a demo Employee account so the login screen quick-fill works out of the box
                 var demoEmployeeEmail = "employee@company.com";
-                var demoEmployeePassword = "EmployeePassword123!";
-                if (await userManager.FindByEmailAsync(demoEmployeeEmail) == null)
+                var demoEmployeePassword = "employee@123";
+                var existingDemoEmployee = await userManager.FindByEmailAsync(demoEmployeeEmail);
+                if (existingDemoEmployee == null)
                 {
                     var defaultDepartment = await context.Departments.OrderBy(d => d.Id).FirstOrDefaultAsync();
                     if (defaultDepartment != null)
@@ -122,6 +127,10 @@ namespace EmployeeManagementSystem.API.Data
                         }
                     }
                 }
+                else
+                {
+                    await EnsureSeedPasswordAsync(userManager, existingDemoEmployee, demoEmployeePassword, "demo Employee", logger);
+                }
 
                 // 4. Seed Default Leave Types if empty
                 if (!await context.LeaveTypes.AnyAsync())
@@ -141,6 +150,32 @@ namespace EmployeeManagementSystem.API.Data
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred while seeding the database.");
+            }
+        }
+
+        /// <summary>
+        /// Keeps the documented demo credentials in sync with configuration, even when
+        /// the database already exists from a previous deployment.
+        /// </summary>
+        private static async Task EnsureSeedPasswordAsync(
+            UserManager<ApplicationUser> userManager,
+            ApplicationUser user,
+            string password,
+            string label,
+            ILogger logger)
+        {
+            if (await userManager.CheckPasswordAsync(user, password)) return;
+
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, token, password);
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Updated the seeded {Label} password.", label);
+            }
+            else
+            {
+                logger.LogError("Failed to update the seeded {Label} password: {Errors}",
+                    label, string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
     }

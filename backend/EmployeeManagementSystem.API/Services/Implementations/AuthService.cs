@@ -131,6 +131,93 @@ namespace EmployeeManagementSystem.API.Services.Implementations
             };
         }
 
+        public async Task<AuthResponseDto> RegisterEmployeeAsync(RegisterEmployeeDto dto)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingUser != null)
+            {
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = "An account with this email already exists."
+                };
+            }
+
+            // Self-registered users need a department for the employee profile.
+            var defaultDepartment = await _context.Departments
+                .Where(d => d.IsActive)
+                .OrderBy(d => d.Id)
+                .FirstOrDefaultAsync();
+
+            if (defaultDepartment == null)
+            {
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = "Registration is unavailable because no active department is configured."
+                };
+            }
+
+            if (!await _roleManager.RoleExistsAsync("Employee"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Employee"));
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await _userManager.CreateAsync(user, dto.Password);
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Registration failed: {errors}"
+                };
+            }
+
+            await _userManager.AddToRoleAsync(user, "Employee");
+
+            var employee = new Employee
+            {
+                UserId = user.Id,
+                DepartmentId = defaultDepartment.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email ?? dto.Email,
+                Designation = "Employee",
+                JoiningDate = DateTime.Today,
+                Salary = 0m,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Employees.Add(employee);
+            await _context.SaveChangesAsync();
+
+            var (token, expiresAt) = await _tokenService.GenerateTokenAsync(user, employee.Id);
+
+            return new AuthResponseDto
+            {
+                Success = true,
+                Message = "Employee account registered successfully.",
+                Token = token,
+                ExpiresAt = expiresAt,
+                Role = "Employee",
+                Email = user.Email,
+                FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                EmployeeId = employee.Id
+            };
+        }
+
         public async Task<CurrentUserDto?> GetCurrentUserAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

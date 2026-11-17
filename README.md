@@ -28,7 +28,7 @@ A production-shaped, full-stack employee portal built with **ASP.NET Core 8 Web 
 |---|---------|:-------:|:--------:|
 | 1 | Admin & employee login with JWT + role claims | ✅ | ✅ |
 | 2 | Server-authoritative current-user hydration (`/auth/me`) | ✅ | ✅ |
-| 3 | Admin self-service registration | ✅ | ✅ |
+| 3 | Registration: admin-only + public employee self-service | ✅ | ✅ |
 | 4 | Department create / edit / deactivate / list | ✅ | ✅ |
 | 5 | Employee create / edit / search / deactivate / profile | ✅ | ✅ |
 | 6 | Attendance check-in / check-out / history / admin log | ✅ | ✅ |
@@ -101,10 +101,10 @@ SPA: `http://localhost:4200`
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@company.com` | `AdminPassword123!` |
-| Employee | `employee@company.com` | `EmployeePassword123!` |
+| Admin | `admin@company.com` | `admin@123` |
+| Employee | `employee@company.com` | `employee@123` |
 
-The login page has one-click quick-fill buttons for both accounts.
+The login page has one-click quick-fill buttons for both accounts, plus a **Register** button for public employee self-registration.
 
 ### Configuration
 
@@ -112,9 +112,10 @@ The login page has one-click quick-fill buttons for both accounts.
 
 ```powershell
 $env:JwtSettings__SecretKey = "<a-long-random-secret-at-least-32-characters>"
-$env:AdminSeed__Password    = "<a-strong-admin-password>"
+$env:AdminSeed__Password    = "admin@123" # demo value; use a strong password in real deployments
 ```
 
+The seeded admin and demo-employee passwords are re-synced from configuration on every startup, so changing `AdminSeed__Password` and restarting updates the live login.
 The app logs a warning at startup if the development JWT key is still in use.
 
 ---
@@ -123,7 +124,8 @@ The app logs a warning at startup if the development JWT key is still in use.
 
 | Route | Access | Purpose |
 |-------|--------|---------|
-| `/login` | Public | Login (admin / employee quick-fill) |
+| `/login` | Public | Login (quick-fill + Register button) |
+| `/register` | Public | Employee self-registration |
 | `/dashboard` | Authenticated | Role-specific dashboard |
 | `/employees`, `/employees/new`, `/employees/:id/edit` | Admin | Employee directory / forms |
 | `/departments` | Admin | Department management |
@@ -143,6 +145,7 @@ The app logs a warning at startup if the development JWT key is still in use.
 | Method | Endpoint | Access | Description |
 |--------|----------|--------|-------------|
 | POST | `/login` | Public | JWT + role + employeeId |
+| POST | `/register` | Public | Self-register an Employee account + JWT |
 | POST | `/register-admin` | Admin | Create another admin |
 | GET | `/me` | Authenticated | Current user from server |
 
@@ -193,17 +196,18 @@ CI runs both builds on every push / PR via [.github/workflows/ci.yml](.github/wo
 
 ## Publishing to GitHub
 
-1. Create an empty public repository named `EmployeeManagementSystem`.
-2. Replace `YOUR_USERNAME` in the CI badge URL above with your GitHub username.
-3. Push:
+The project is published at https://github.com/vinay-kumar-kaki/EmployeeManagementSystem. To push future changes:
 
 ```powershell
-git init
 git add .
-git commit -m "Initial commit: full-stack employee & leave management system"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/EmployeeManagementSystem.git
-git push -u origin main
+git commit -m "Describe your change"
+git push origin main
+```
+
+For a fresh clone:
+
+```powershell
+git clone https://github.com/vinay-kumar-kaki/EmployeeManagementSystem.git
 ```
 
 Generated folders (`node_modules`, `dist`, `.angular`, `bin`, `obj`), the SQLite database, and logs are excluded by [.gitignore](.gitignore).
@@ -216,9 +220,9 @@ The included [render.yaml](render.yaml) Blueprint deploys **one Docker web servi
 
 1. Push this repository to GitHub (see above).
 2. In Render, choose **New → Blueprint** and connect the repository. Render reads `render.yaml` and creates the service automatically.
-3. When prompted, set `AdminSeed__Password` to a strong password (the JWT secret is generated for you).
+3. `AdminSeed__Password` is set to the demo value `admin@123` in `render.yaml` (change it for real deployments); the JWT secret is generated automatically.
 4. Render builds the Docker image and deploys. Future pushes to `main` are deployed automatically **after GitHub Actions CI passes** (`autoDeployTrigger: checksPass`).
-5. Open the service's `onrender.com` URL. The seeded accounts from [Quick start](#seeded-accounts) work (with your custom admin password).
+5. Open the service's `onrender.com` URL. The seeded accounts from [Quick start](#seeded-accounts) work, and **Register** on the login page creates additional employee accounts.
 
 Notes:
 - The free plan spins the service down after inactivity; the first request after idle may take ~30–60 seconds.
@@ -230,10 +234,10 @@ Notes:
 ## Security notes
 
 - JWT bearer tokens expire after 120 minutes (`JwtSettings:DurationInMinutes`).
-- Passwords require 8+ characters with upper/lower case, digit, and symbol.
-- Admin registration is restricted to authenticated admins.
+- Passwords require 8+ characters with lowercase, digit, and symbol (uppercase is optional for the documented demo credentials).
+- Public `/register` creates **Employee** accounts only; admin registration remains restricted to authenticated admins.
 - `OnTokenValidated` rejects tokens belonging to soft-deactivated employees.
-- Replace the development JWT secret and admin password before deploying. For stricter auditing, add a per-request check for admin role changes.
+- The demo passwords (`admin@123` / `employee@123`) are for local/demo use. Replace the JWT secret and admin password before any real deployment. For stricter auditing, add a per-request check for admin role changes.
 
 ## License
 

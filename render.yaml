@@ -18,4 +18,4 @@ services:
       - key: AdminSeed__Email
         value: admin@company.com
       - key: AdminSeed__Password
-        sync: false # set a strong password in the Render dashboard on first deploy
+        value: admin@123 # demo credential; change this for any real deployment

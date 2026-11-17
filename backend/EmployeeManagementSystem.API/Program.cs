@@ -41,7 +41,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
+    // Uppercase is optional so the documented demo passwords (admin@123 / employee@123) work.
+    options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
     options.User.RequireUniqueEmail = true;

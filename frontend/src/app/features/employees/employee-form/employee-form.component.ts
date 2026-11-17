@@ -53,7 +53,7 @@ export class EmployeeFormComponent implements OnInit {
           : [
               Validators.required,
               Validators.minLength(8),
-              Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
+              Validators.pattern(/^(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
             ]
       ],
       phoneNumber: [''],
