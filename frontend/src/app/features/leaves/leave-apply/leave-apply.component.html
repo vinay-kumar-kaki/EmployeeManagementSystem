@@ -1,0 +1,76 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+          <div>
+            <h4 class="fw-bold mb-1">Apply For Leave</h4>
+            <p class="text-muted small mb-0">Submit a leave request for administrative review</p>
+          </div>
+          <a routerLink="/leaves/history" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-clock-history me-1"></i> My Leave History
+          </a>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger small" role="alert">
+          <i class="bi bi-exclamation-circle me-1"></i> {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Leave Category</label>
+            <select formControlName="leaveTypeId" class="form-select">
+              <option [ngValue]="null">Select Leave Type</option>
+              <option *ngFor="let lt of leaveTypes" [ngValue]="lt.id">
+                {{ lt.name }} ({{ lt.defaultDaysPerYear }} days/year default)
+              </option>
+            </select>
+            <div *ngIf="leaveForm.get('leaveTypeId')?.touched && leaveForm.get('leaveTypeId')?.invalid" class="text-danger small mt-1">
+              Please choose a leave category.
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Start Date</label>
+              <input type="date" formControlName="startDate" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">End Date</label>
+              <input type="date" formControlName="endDate" class="form-control" />
+            </div>
+          </div>
+
+          <!-- Calculated duration banner -->
+          <div class="alert alert-info py-2 px-3 small d-flex align-items-center justify-content-between mb-3" *ngIf="calculatedDays > 0">
+            <span><i class="bi bi-calendar3 me-2"></i>Total Leave Duration:</span>
+            <span class="badge bg-primary fs-6">{{ calculatedDays }} {{ calculatedDays === 1 ? 'day' : 'days' }}</span>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">Reason for Leave</label>
+            <textarea
+              formControlName="reason"
+              class="form-control"
+              rows="4"
+              placeholder="Please provide the purpose or context of your leave request..."
+            ></textarea>
+            <div *ngIf="leaveForm.get('reason')?.touched && leaveForm.get('reason')?.invalid" class="text-danger small mt-1">
+              Reason is required (min 5 characters).
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary py-2 fw-semibold" [disabled]="isLoading || calculatedDays <= 0">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Submit Leave Application
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

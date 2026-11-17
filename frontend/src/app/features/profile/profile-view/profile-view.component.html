@@ -1,0 +1,57 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <div class="card shadow-sm border-0 rounded-4 overflow-hidden" *ngIf="profile && !isLoading">
+        <!-- Profile Banner -->
+        <div class="bg-primary p-4 text-white text-center">
+          <div class="bg-white text-primary rounded-circle d-inline-flex p-3 mb-2 shadow-sm">
+            <i class="bi bi-person-fill fs-1"></i>
+          </div>
+          <h4 class="fw-bold mb-0">{{ profile.fullName }}</h4>
+          <span class="badge bg-light text-primary mt-1">{{ profile.designation }}</span>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-envelope me-2"></i>Email</span>
+              <span class="fw-semibold">{{ profile.email }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-telephone me-2"></i>Phone</span>
+              <span class="fw-semibold">{{ profile.phoneNumber || 'Not provided' }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-building me-2"></i>Department</span>
+              <span class="badge bg-secondary px-3 py-2">{{ profile.departmentName }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-calendar-event me-2"></i>Joined Date</span>
+              <span class="fw-semibold">{{ profile.joiningDate | date:'longDate' }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-cash-stack me-2"></i>Annual Salary</span>
+              <span class="fw-semibold">{{ profile.salary | currency:'USD':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <span class="text-muted small"><i class="bi bi-shield-check me-2"></i>Status</span>
+              <span class="badge" [ngClass]="profile.isActive ? 'bg-success' : 'bg-danger'">
+                {{ profile.isActive ? 'Active Employee' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

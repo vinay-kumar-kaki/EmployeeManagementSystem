@@ -1,0 +1,21 @@
+# Render Blueprint: one Docker web service serves both the .NET API and the Angular SPA.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: employee-management-system
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass # deploy only after GitHub Actions CI succeeds
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: JwtSettings__SecretKey
+        generateValue: true
+      - key: AdminSeed__Email
+        value: admin@company.com
+      - key: AdminSeed__Password
+        sync: false # set a strong password in the Render dashboard on first deploy

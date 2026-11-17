@@ -1,0 +1,36 @@
+# Dependencies
+**/node_modules/
+frontend/node_modules/
+
+# Build artifacts
+frontend/dist/
+frontend/.angular/
+**/bin/
+**/obj/
+
+# Runtime database (created/seeded on first run)
+*.db
+*.db-shm
+*.db-wal
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs and test output
+*.log
+*.log.err
+tests/*.log
+tests/*.log.err
+
+# Local secrets / environment overrides
+.env
+.env.*
+appsettings.Local.json
+secrets.json
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,152 @@
+<div class="container py-4">
+  
+  <!-- Welcome Banner -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+      <h2 class="fw-bold mb-1">Welcome back, {{ currentUser?.fullName || 'User' }}!</h2>
+      <p class="text-muted mb-0">Here is the real-time overview of your workspace today.</p>
+    </div>
+    <span class="badge fs-6 px-3 py-2" [ngClass]="isAdmin ? 'bg-danger' : 'bg-primary'">
+      Role: {{ currentUser?.role }}
+    </span>
+  </div>
+
+  <!-- Admin View -->
+  <div *ngIf="isAdmin">
+    <div class="row g-3 mb-4">
+      <!-- Total Employees -->
+      <div class="col-sm-6 col-lg-3">
+        <div class="card p-3 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-muted small text-uppercase fw-bold">Active Staff</div>
+              <h3 class="fw-bold mb-0 mt-1">{{ adminStats.totalEmployees }}</h3>
+            </div>
+            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+              <i class="bi bi-people fs-4"></i>
+            </div>
+          </div>
+          <a routerLink="/employees" class="small text-decoration-none mt-3 d-inline-block text-primary fw-semibold">
+            Manage Directory &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Pending Leaves -->
+      <div class="col-sm-6 col-lg-3">
+        <div class="card p-3 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-muted small text-uppercase fw-bold">Pending Leaves</div>
+              <h3 class="fw-bold mb-0 mt-1" [ngClass]="adminStats.pendingLeaves > 0 ? 'text-warning' : 'text-success'">
+                {{ adminStats.pendingLeaves }}
+              </h3>
+            </div>
+            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+              <i class="bi bi-hourglass-split fs-4"></i>
+            </div>
+          </div>
+          <a routerLink="/leaves/review" class="small text-decoration-none mt-3 d-inline-block text-warning fw-semibold">
+            Review Submissions &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Departments -->
+      <div class="col-sm-6 col-lg-3">
+        <div class="card p-3 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-muted small text-uppercase fw-bold">Departments</div>
+              <h3 class="fw-bold mb-0 mt-1">{{ adminStats.activeDepartments }}</h3>
+            </div>
+            <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
+              <i class="bi bi-building fs-4"></i>
+            </div>
+          </div>
+          <a routerLink="/departments" class="small text-decoration-none mt-3 d-inline-block text-success fw-semibold">
+            Manage Units &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Today's Attendance -->
+      <div class="col-sm-6 col-lg-3">
+        <div class="card p-3 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-muted small text-uppercase fw-bold">Present Today</div>
+              <h3 class="fw-bold mb-0 mt-1 text-info">{{ adminStats.presentTodayCount }} ({{ adminStats.todayAttendanceRate }})</h3>
+            </div>
+            <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
+              <i class="bi bi-check-circle fs-4"></i>
+            </div>
+          </div>
+          <a routerLink="/attendance/log" class="small text-decoration-none mt-3 d-inline-block text-info fw-semibold">
+            Attendance Log &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employee View -->
+  <div *ngIf="!isAdmin">
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card p-4 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+              <i class="bi bi-fingerprint fs-3"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">Today's Attendance</h5>
+              <small class="text-muted">{{ employeeStats.hasCheckedInToday ? 'Clocked In' : 'Not Clocked In' }}</small>
+            </div>
+          </div>
+          <p class="text-muted small">Shift Duration: <strong>{{ employeeStats.formattedTodayHours }}</strong></p>
+          <a routerLink="/attendance" class="btn btn-outline-primary btn-sm mt-auto">
+            Open Attendance Tracker &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-4 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+              <i class="bi bi-calendar-plus fs-3"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">Leave Applications</h5>
+              <small class="text-muted">{{ employeeStats.pendingLeaves }} Pending / {{ employeeStats.approvedLeaves }} Approved</small>
+            </div>
+          </div>
+          <p class="text-muted small">Total applications: {{ employeeStats.totalLeavesApplied }}</p>
+          <a routerLink="/leaves/apply" class="btn btn-outline-warning btn-sm mt-auto">
+            Apply For Leave &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-4 border-0 shadow-sm bg-white h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
+              <i class="bi bi-clock-history fs-3"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">Leave History</h5>
+              <small class="text-muted">Review past submissions</small>
+            </div>
+          </div>
+          <p class="text-muted small">View approved & rejected requests</p>
+          <a routerLink="/leaves/history" class="btn btn-outline-success btn-sm mt-auto">
+            View History &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

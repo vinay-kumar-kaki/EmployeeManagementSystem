@@ -1,0 +1,131 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom gap-3">
+    <div>
+      <h3 class="fw-bold mb-1">Company Attendance Log</h3>
+      <p class="text-muted mb-0">Daily check-in and check-out records for all employees</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <label for="attendanceDate" class="form-label small fw-semibold mb-0 text-muted">Attendance Date</label>
+      <input
+        id="attendanceDate"
+        type="date"
+        class="form-control form-control-sm"
+        style="width: 170px;"
+        [(ngModel)]="selectedDate"
+        (change)="onDateChange()"
+      />
+      <button class="btn btn-outline-primary btn-sm" type="button" (click)="loadRecords()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card p-3 border-0 shadow-sm bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small text-uppercase fw-bold">Present</div>
+            <h3 class="fw-bold mb-0 mt-1">{{ records.length }}</h3>
+          </div>
+          <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
+            <i class="bi bi-check-circle fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card p-3 border-0 shadow-sm bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small text-uppercase fw-bold">Currently In</div>
+            <h3 class="fw-bold mb-0 mt-1 text-warning">{{ currentlyInCount }}</h3>
+          </div>
+          <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+            <i class="bi bi-hourglass-split fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card p-3 border-0 shadow-sm bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small text-uppercase fw-bold">Checked Out</div>
+            <h3 class="fw-bold mb-0 mt-1 text-info">{{ checkedOutCount }}</h3>
+          </div>
+          <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
+            <i class="bi bi-box-arrow-right fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card p-3 border-0 shadow-sm bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small text-uppercase fw-bold">Avg. Duration</div>
+            <h3 class="fw-bold mb-0 mt-1 text-primary">{{ averageDuration }}</h3>
+          </div>
+          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+            <i class="bi bi-clock-history fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Records table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Check-In</th>
+              <th>Check-Out</th>
+              <th>Duration</th>
+              <th class="pe-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="isLoading">
+              <td colspan="7" class="text-center py-4 text-muted">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Loading attendance records...
+              </td>
+            </tr>
+            <tr *ngFor="let rec of records">
+              <td class="ps-4 fw-semibold">{{ rec.employeeName }}</td>
+              <td><span class="badge bg-light text-dark border">{{ rec.departmentName }}</span></td>
+              <td>{{ rec.date | date:'mediumDate' }}</td>
+              <td>{{ rec.checkInTime | date:'shortTime' }}</td>
+              <td>{{ rec.checkOutTime ? (rec.checkOutTime | date:'shortTime') : '--' }}</td>
+              <td><span class="badge bg-secondary">{{ rec.formattedDuration }}</span></td>
+              <td class="pe-4">
+                <span class="badge" [ngClass]="rec.checkOutTime ? 'bg-success' : 'bg-warning text-dark'">
+                  {{ rec.checkOutTime ? rec.status : 'In Shift' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!isLoading && records.length === 0">
+              <td colspan="7" class="text-center py-4 text-muted">
+                <i class="bi bi-calendar-x fs-3 d-block mb-1"></i>
+                No attendance records found for {{ selectedDate | date:'mediumDate' }}.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

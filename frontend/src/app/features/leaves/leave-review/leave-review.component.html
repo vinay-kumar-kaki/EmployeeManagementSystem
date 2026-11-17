@@ -1,0 +1,187 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom gap-2">
+    <div>
+      <h3 class="fw-bold mb-1">Leave Applications Review</h3>
+      <p class="text-muted mb-0">Approve, reject, and audit employee leave requests</p>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="refresh()">
+      <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-0">
+    <li class="nav-item">
+      <button
+        class="nav-link fw-semibold"
+        type="button"
+        [ngClass]="{ active: activeTab === 'pending' }"
+        (click)="selectTab('pending')"
+      >
+        <i class="bi bi-hourglass-split me-1"></i> Pending
+        <span class="badge bg-warning text-dark ms-1">{{ pendingLeaves.length }}</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link fw-semibold"
+        type="button"
+        [ngClass]="{ active: activeTab === 'all' }"
+        (click)="selectTab('all')"
+      >
+        <i class="bi bi-collection me-1"></i> All Requests
+        <span class="badge bg-secondary ms-1">{{ allLeaves.length }}</span>
+      </button>
+    </li>
+  </ul>
+
+  <div class="card shadow-sm border-0 rounded-top-0">
+    <!-- All-tab summary / filter -->
+    <div class="card-header bg-white border-0 py-3" *ngIf="activeTab === 'all'">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+            Approved: {{ approvedCount }}
+          </span>
+          <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+            Pending: {{ pendingCount }}
+          </span>
+          <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">
+            Rejected: {{ rejectedCount }}
+          </span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <label for="statusFilter" class="form-label small text-muted fw-semibold mb-0">Status</label>
+          <select
+            id="statusFilter"
+            class="form-select form-select-sm"
+            style="width: 150px;"
+            [(ngModel)]="statusFilter"
+            (change)="onStatusFilterChange()"
+          >
+            <option value="all">All statuses</option>
+            <option [ngValue]="0">Pending</option>
+            <option [ngValue]="1">Approved</option>
+            <option [ngValue]="2">Rejected</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Employee</th>
+              <th>Department</th>
+              <th>Leave Type</th>
+              <th>Dates</th>
+              <th>Days</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th class="text-end pe-4">Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="isLoading">
+              <td colspan="8" class="text-center py-4 text-muted">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Loading leave requests...
+              </td>
+            </tr>
+            <tr *ngFor="let l of displayedLeaves">
+              <td class="ps-4 fw-semibold">{{ l.employeeName }}</td>
+              <td><span class="badge bg-secondary">{{ l.departmentName }}</span></td>
+              <td>{{ l.leaveTypeName }}</td>
+              <td>{{ l.startDate | date:'mediumDate' }} &rarr; {{ l.endDate | date:'mediumDate' }}</td>
+              <td><span class="badge bg-light text-dark border">{{ l.totalDays }}</span></td>
+              <td class="small text-muted" style="max-width: 250px;">{{ l.reason }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-warning text-dark': l.status === 0,
+                  'bg-success': l.status === 1,
+                  'bg-danger': l.status === 2
+                }">
+                  {{ l.statusName }}
+                </span>
+                <div class="small text-muted mt-1" *ngIf="l.adminRemarks">{{ l.adminRemarks }}</div>
+              </td>
+              <td class="text-end pe-4">
+                <ng-container *ngIf="l.status === 0; else reviewed">
+                  <button class="btn btn-success btn-sm me-2" (click)="openReviewModal(l, 1)">
+                    <i class="bi bi-check-lg"></i> Approve
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="openReviewModal(l, 2)">
+                    <i class="bi bi-x-lg"></i> Reject
+                  </button>
+                </ng-container>
+                <ng-template #reviewed>
+                  <span class="small text-muted">
+                    {{ l.reviewedAt ? (l.reviewedAt | date:'short') : 'Reviewed' }}
+                  </span>
+                </ng-template>
+              </td>
+            </tr>
+            <tr *ngIf="!isLoading && displayedLeaves.length === 0">
+              <td colspan="8" class="text-center py-4 text-muted">
+                <i class="bi bi-check2-circle text-success fs-3 d-block mb-1"></i>
+                <span *ngIf="activeTab === 'pending'">All leave requests have been reviewed!</span>
+                <span *ngIf="activeTab === 'all'">No leave requests match this filter.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div class="modal fade show d-block" *ngIf="showModal" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header" [ngClass]="reviewAction === 1 ? 'bg-success text-white' : 'bg-danger text-white'">
+          <h5 class="modal-title fw-bold">
+            {{ reviewAction === 1 ? 'Approve Leave Request' : 'Reject Leave Request' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">
+            Employee: <strong>{{ selectedLeave?.employeeName }}</strong> ({{ selectedLeave?.totalDays }} days)
+          </p>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Review Remarks (Optional)</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="adminRemarks"
+              placeholder="Add reason for approval or rejection..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="closeModal()">Cancel</button>
+          <button
+            type="button"
+            class="btn"
+            [ngClass]="reviewAction === 1 ? 'btn-success' : 'btn-danger'"
+            (click)="submitReview()"
+          >
+            Confirm {{ reviewAction === 1 ? 'Approval' : 'Rejection' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

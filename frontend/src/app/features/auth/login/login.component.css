@@ -1,0 +1,16 @@
+.extra-small {
+  font-size: 0.78rem;
+}
+
+.input-group-text {
+  border-color: #cbd5e1;
+}
+
+.form-control {
+  border-color: #cbd5e1;
+}
+
+.form-control:focus {
+  border-color: #2563eb;
+  box-shadow: none;
+}

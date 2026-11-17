@@ -1,0 +1,63 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-lg-5">
+          <div class="text-center mb-4">
+            <i class="bi bi-person-plus-fill text-primary fs-1"></i>
+            <h3 class="fw-bold mt-2 mb-1">Register a New Admin</h3>
+            <p class="text-muted mb-0">Create another administrator account for the portal</p>
+          </div>
+
+          <div *ngIf="successMessage" class="alert alert-success" role="alert">{{ successMessage }}</div>
+          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+
+          <form [formGroup]="adminForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold small">First Name</label>
+                <input type="text" formControlName="firstName" class="form-control" placeholder="Jane" />
+                <div *ngIf="adminForm.get('firstName')?.touched && adminForm.get('firstName')?.invalid"
+                     class="text-danger small mt-1">First name is required.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold small">Last Name</label>
+                <input type="text" formControlName="lastName" class="form-control" placeholder="Doe" />
+                <div *ngIf="adminForm.get('lastName')?.touched && adminForm.get('lastName')?.invalid"
+                     class="text-danger small mt-1">Last name is required.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Email Address</label>
+              <input type="email" formControlName="email" class="form-control" placeholder="admin2@company.com" />
+              <div *ngIf="adminForm.get('email')?.touched && adminForm.get('email')?.invalid"
+                   class="text-danger small mt-1">Enter a valid email address.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Password</label>
+              <input type="password" formControlName="password" class="form-control" placeholder="At least 8 characters" />
+              <div *ngIf="adminForm.get('password')?.touched && adminForm.get('password')?.invalid"
+                   class="text-danger small mt-1">
+                Use 8+ characters with uppercase, lowercase, a digit and a special character.
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold small">Confirm Password</label>
+              <input type="password" formControlName="confirmPassword" class="form-control" />
+              <div *ngIf="adminForm.get('confirmPassword')?.touched && adminForm.get('confirmPassword')?.invalid"
+                   class="text-danger small mt-1">Please confirm the password.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              {{ isLoading ? 'Creating...' : 'Create Admin Account' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,136 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+      <h3 class="fw-bold mb-1">Attendance Tracker</h3>
+      <p class="text-muted mb-0">Record daily check-in and check-out</p>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Today's Clock & Action Card -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 rounded-4 text-center p-4 bg-white">
+        <div class="text-muted small text-uppercase fw-semibold mb-2">Current System Time</div>
+        <div class="display-5 fw-bold text-primary mb-2 font-monospace">
+          {{ currentTime | date:'mediumTime' }}
+        </div>
+        <div class="text-secondary small mb-4">
+          {{ currentTime | date:'fullDate' }}
+        </div>
+
+        <!-- Action Buttons depending on state -->
+        <div *ngIf="todayStatus">
+          <!-- State 1: Not checked in yet -->
+          <button
+            *ngIf="!todayStatus.hasCheckedInToday"
+            class="btn btn-success btn-lg px-5 py-3 fw-bold rounded-pill shadow-sm"
+            [disabled]="isLoading"
+            (click)="onCheckIn()"
+          >
+            <i class="bi bi-box-arrow-in-right me-2"></i> Clock In Now
+          </button>
+
+          <!-- State 2: Checked in, waiting to check out -->
+          <div *ngIf="todayStatus.hasCheckedInToday && !todayStatus.hasCheckedOutToday">
+            <div class="alert alert-light border py-2 mb-3 small">
+              <i class="bi bi-clock me-1 text-success"></i> Checked In At: 
+              <strong>{{ todayStatus.checkInTime | date:'shortTime' }}</strong>
+            </div>
+            <button
+              class="btn btn-warning btn-lg px-5 py-3 fw-bold rounded-pill shadow-sm text-dark"
+              [disabled]="isLoading"
+              (click)="onCheckOut()"
+            >
+              <i class="bi bi-box-arrow-right me-2"></i> Clock Out Now
+            </button>
+          </div>
+
+          <!-- State 3: Already checked out today -->
+          <div *ngIf="todayStatus.hasCheckedInToday && todayStatus.hasCheckedOutToday" class="p-3 bg-light rounded-4">
+            <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+            <h5 class="fw-bold text-success mb-1">Shift Completed for Today</h5>
+            <div class="text-muted small">Total Logged Time: <strong>{{ todayStatus.formattedDuration }}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Status summary -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+        <h5 class="fw-bold mb-3">Today's Summary</h5>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="p-3 rounded-3 bg-light">
+              <span class="text-muted small d-block">Status</span>
+              <strong class="fs-5">{{ todayStatus?.status || 'Absent' }}</strong>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 rounded-3 bg-light">
+              <span class="text-muted small d-block">Work Duration</span>
+              <strong class="fs-5">{{ todayStatus?.formattedDuration || '--' }}</strong>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 rounded-3 bg-light">
+              <span class="text-muted small d-block">Check-In</span>
+              <strong>{{ (todayStatus?.checkInTime | date:'shortTime') || '--' }}</strong>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 rounded-3 bg-light">
+              <span class="text-muted small d-block">Check-Out</span>
+              <strong>{{ (todayStatus?.checkOutTime | date:'shortTime') || '--' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance History Table -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0">Recent Attendance Records (Last 30 Days)</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Date</th>
+              <th>Check-In</th>
+              <th>Check-Out</th>
+              <th>Total Duration</th>
+              <th class="pe-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let rec of history">
+              <td class="ps-4 fw-semibold">{{ rec.date | date:'mediumDate' }}</td>
+              <td>{{ rec.checkInTime | date:'shortTime' }}</td>
+              <td>{{ (rec.checkOutTime | date:'shortTime') || '--' }}</td>
+              <td><span class="badge bg-secondary">{{ rec.formattedDuration }}</span></td>
+              <td class="pe-4">
+                <span class="badge bg-success">{{ rec.status }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="history.length === 0">
+              <td colspan="5" class="text-center py-4 text-muted">No attendance records found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
